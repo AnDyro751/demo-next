@@ -4,14 +4,34 @@ import RememberAndForgotPassword from "../remember_and_forgot_password";
 import {Formik} from 'formik';
 import validate from "./validate";
 import defaultValues from "./defaultValues";
+import network from "../../../network";
+import {useToasts} from 'react-toast-notifications';
+
 
 export default function SignInForm() {
+  const {addToast} = useToasts()
 
-  const _onSubmit = (setSubmitting, values) => {
-    setTimeout(() => {
-      alert(JSON.stringify(values, null, 2));
-      setSubmitting(false);
-    }, 400);
+  const _onSubmit = async (setSubmitting, values) => {
+    try {
+      let response = await network.auth().sign_in(values.email, values.password)
+      console.log(response)
+      if (response.success) {
+        alert(JSON.stringify(response.user, null, 2));
+      } else {
+        showToast('Email o contraseña inválidos', 'error')
+      }
+    } catch (e) {
+      console.log(e, "ERROR")
+      showToast('Ha ocurrido un error al iniciar sesión', 'error')
+    }
+    setSubmitting(false);
+  }
+
+  const showToast = (message, type) => {
+    addToast(message, {
+      appearance: type,
+      autoDismiss: true,
+    })
   }
 
   return (
