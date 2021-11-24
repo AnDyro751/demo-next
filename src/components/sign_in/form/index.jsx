@@ -9,8 +9,13 @@ import {useToasts} from 'react-toast-notifications';
 import {bindActionCreators} from "redux";
 import {signInUser} from "../../../actions/userActions";
 import {connect} from "react-redux";
+import generateJwt from "../../../utils/generateJwt";
+import {useCookies} from "react-cookie";
+import {COOKIE_NAME} from "../../../utils/constants";
 
 function SignInForm(props) {
+  const [cookie, setCookie] = useCookies([COOKIE_NAME])
+
   const {addToast} = useToasts()
 
   const _onSubmit = async (setSubmitting, values) => {
@@ -18,7 +23,8 @@ function SignInForm(props) {
     try {
       let response = await network.auth().sign_in(values.email, values.password)
       if (response.success) {
-        showToast('Has iniciado sesión', 'success')
+        showToast('Has iniciado sesión', 'success');
+        setCookie(COOKIE_NAME, generateJwt({user: {email: values.email}}))
         props.signInUser({email: 'demoa@gmail.com'});
       } else {
         showToast('Email o contraseña inválidos', 'error')

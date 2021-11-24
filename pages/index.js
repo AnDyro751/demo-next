@@ -4,6 +4,7 @@ import {ToastProvider} from 'react-toast-notifications';
 import {connect} from 'react-redux';
 import {signInUser} from "../src/actions/userActions";
 import {wrapper} from "../src/store";
+import {COOKIE_NAME} from "../src/utils/constants";
 
 function Home({signed_in, user}) {
 
@@ -39,7 +40,7 @@ function Home({signed_in, user}) {
 export const getServerSideProps = wrapper.getServerSideProps((store) => (context) => {
   let signed_in = false
   if (store && context) {
-    if (context.req.cookies.token) {
+    if (context.req.cookies[COOKIE_NAME]) {
       signed_in = true
       // podemos hacer petición para traer los datos de inicio de sesión
       store.dispatch(signInUser({email: 'ndjnjs'}));
