@@ -6,17 +6,20 @@ import validate from "./validate";
 import defaultValues from "./defaultValues";
 import network from "../../../network";
 import {useToasts} from 'react-toast-notifications';
+import {bindActionCreators} from "redux";
+import {signInUser} from "../../../actions/userActions";
+import {connect} from "react-redux";
 
-
-export default function SignInForm() {
+function SignInForm(props) {
   const {addToast} = useToasts()
 
   const _onSubmit = async (setSubmitting, values) => {
+
     try {
       let response = await network.auth().sign_in(values.email, values.password)
-      console.log(response)
       if (response.success) {
-        alert(JSON.stringify(response.user, null, 2));
+        showToast('Has iniciado sesión', 'success')
+        props.signInUser({email: 'demoa@gmail.com'});
       } else {
         showToast('Email o contraseña inválidos', 'error')
       }
@@ -42,8 +45,6 @@ export default function SignInForm() {
       validate={(values) => validate(values)}
       onSubmit={(values, {setSubmitting}) => {
         _onSubmit(setSubmitting, values);
-        console.log("submit")
-
       }}
     >
       {({
@@ -86,7 +87,7 @@ export default function SignInForm() {
           <PrincipalButton
             type={"submit"}
             disabled={isSubmitting}
-            text={'Iniciar sesión'}
+            text={isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
           />
 
         </form>
@@ -94,3 +95,13 @@ export default function SignInForm() {
     </Formik>
   )
 }
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    signInUser: bindActionCreators(signInUser, dispatch),
+  }
+};
+
+export default connect(null, mapDispatchToProps)(SignInForm);
+
+

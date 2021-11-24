@@ -1,8 +1,19 @@
 import UnAuthenticatedLayout from "../src/components/layouts/unauthenticated";
 import SignInForm from "../src/components/sign_in/form";
 import {ToastProvider} from 'react-toast-notifications';
+import {connect} from 'react-redux';
+import {signInUser} from "../src/actions/userActions";
+import {wrapper} from "../src/store";
 
-export default function Home() {
+function Home({signed_in, user}) {
+
+  if (user?.signed_in || signed_in) {
+    return (
+      <ToastProvider>
+        <h1>Sesión iniciada</h1>
+      </ToastProvider>
+    )
+  }
   return (
     <>
       <ToastProvider>
@@ -23,3 +34,28 @@ export default function Home() {
     </>
   )
 }
+
+
+export const getServerSideProps = wrapper.getServerSideProps((store) => (context) => {
+  let signed_in = false
+  if (store && context) {
+    if (context.req.cookies.token) {
+      signed_in = true
+      // podemos hacer petición para traer los datos de inicio de sesión
+      store.dispatch(signInUser({email: 'ndjnjs'}));
+    }
+  }
+  return {
+    props: {
+      signed_in: signed_in
+    }
+  }
+})
+const mapStateToProps = state => ({
+  user: state.user
+});
+
+export default connect(mapStateToProps, null)(Home);
+
+
+// export default Home
